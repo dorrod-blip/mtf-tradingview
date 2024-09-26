@@ -1,0 +1,957 @@
+//@version=5
+indicator("Maxime v4 - Mod 1.5", overlay=true, max_lines_count=500, max_labels_count=500, max_boxes_count=500, dynamic_requests=true)
+
+// Groupe pour les boutons de contrôle
+var grp = "Timeframe Controls"
+
+// Boutons pour activer/désactiver les timeframes
+aTf1 = input.bool(true, "TF1", inline="tf_controls", group=grp)
+aTf2 = input.bool(true, "TF2", inline="tf_controls", group=grp)
+aTf3 = input.bool(true, "TF3", inline="tf_controls", group=grp)
+aTf4 = input.bool(true, "TF4", inline="tf_controls", group=grp)
+
+g1="______________________ Timeframe 1 ______________________"
+tf1 = input.timeframe("","Timeframe 1",inline = "tf1",group = g1)
+len1 = input.int(3,"Fractal Length",options = [3,5,7],group = g1)
+g1Z="TF1 | Zigzag Lines"
+zztype1 = input.string("Solid","T",tooltip="Zigzag Lines Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g1Z)
+zzwidth1 = input.int(1,"W",inline = "zz",minval=1,maxval=5,group = g1Z)
+zzclr1 = input.color(color.rgb(255, 235, 200),"/",inline = "zz",group = g1Z)
+maxZZ1 =input.int(60,"ZZ Line Count",minval=2,group = g1Z)
+
+pivotAlert1 = input(false, "Pivot Alert", group = g1)
+
+g1H="TF1 | Horizontal Lines"
+showH1 = input(true,"Show Horizontal Lines",group = g1H)
+showLast1 = input.int(200,"Line Count",group = g1H)
+g1A = "TF1 | Active Line"
+g1C = "TF1 | Crossed Line"
+
+hlnType1 = input.string("Solid","T",inline = "ln1",options = ["Solid","Dashed","Dotted"],group = g1A)
+clnType1 = input.string("Dotted","T",inline = "ln2",options = ["Solid","Dashed","Dotted"],group = g1C)
+hwidth1 = input.int(1,"W",minval=1,maxval=5,inline = "ln1" , group = g1A)
+cwidth1 = input.int(1,"W",minval=1,maxval=5,inline = "ln2" , group = g1C)
+hclr1 = input.color(color.rgb(255, 235, 200),"/",inline="ln1",tooltip = "Active Line",group = g1A)
+cclr1 = input.color(color.rgb(255, 235, 200),"/",inline="ln2",tooltip = "Crossed Line",group = g1C)
+
+g1E = "TF1 | EQ Line"
+showEq1 = input(false,"Show Eq Level",group = g1E)
+eType1 = input.string("Dashed","T",inline="eq",tooltip="EQ",options = ["Solid","Dashed","Dotted"],group = g1E)
+eWidth1 = input.int(1,"W",tooltip="EQ",inline="eq",minval=1,maxval=5,group = g1E)
+eClr1 = input.color(color.rgb(255, 235, 200),"/",tooltip="EQ",inline="eq",group = g1E)
+fractalAlert1 = input(false,"New Fractal Alert",group = g1)
+crossAlert1 = input(false,"New Cross Alert",group = g1)
+eqAlert1 = input(false,"EQ Alert",group = g1)
+patternAlert1 = input(false,"New Pattern Alert",group = g1)
+ithItlAlert1 = input(false,"ITH/ITL Alert",group = g1)
+g1P = "TF1 | Patterns"
+showPatterns1 = input(false,"Show Patterns",group = g1P)
+showitlh1 = input(false,"Show ITL/ITH",group = g1P)
+advanced1 = input(false,"Advanced Mode",group = g1P)
+g1Po1 ="TF1 | Potential Pattern"
+pType1 = input.string("Solid","T",inline="po1",options = ["Solid","Dashed","Dotted"],group = g1Po1)
+pC1 = input.color(color.green,"/",inline = "po1",group=g1Po1)
+g1V1 ="TF1 | Valid Pattern"
+vType1 = input.string("Dotted","T",inline="v1",options = ["Solid","Dashed","Dotted"],group = g1V1)
+vC1 = input.color(color.green,"/",inline = "v1",group=g1V1)
+pBC1 = input.color(color.red,"/",inline = "po1",group=g1Po1)
+vBC1 = input.color(color.red,"/",inline = "v1",group=g1V1)
+g1ITH="TF1 | ITH"
+ithtype1 = input.string("Solid","T",tooltip="ITH Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g1ITH)
+ithwidth1 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g1ITH)
+ithclr1 = input.color(color.red,"/",inline = "zz",group = g1ITH)
+g1ITL="TF1 | ITL"
+itltype1 = input.string("Solid","T",tooltip="ITL Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g1ITL)
+itlwidth1 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g1ITL)
+itlclr1 = input.color(color.green,"/",inline = "zz",group = g1ITL)
+
+//
+
+g2="______________________ Timeframe 2 ______________________"
+tf2 = input.timeframe("1D","Timeframe 2",inline = "tf2",group = g2)
+len2 = input.int(3,"Fractal Length",options = [3,5,7],group = g2)
+g2Z="TF2 | Zigzag Lines"
+zztype2 = input.string("Solid","T",tooltip="Zigzag Lines Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g2Z)
+zzwidth2 = input.int(2,"W",inline = "zz",minval=1,maxval=5,group = g2Z)
+zzclr2 = input.color(color.yellow,"/",inline = "zz",group = g2Z)
+maxZZ2 =input.int(250,"ZZ Line Count",minval=2,group = g2Z)
+
+pivotAlert2 = input(false, "Pivot Alert", group = g2)
+
+g2H="TF2 | Horizontal Lines"
+showH2 = input(true,"Show Horizontal Lines",group = g2H)
+showLast2 = input.int(100,"Line Count",group = g2H)
+g2A = "TF2 | Active Line"
+g2C = "TF2 | Crossed Line"
+
+hlnType2 = input.string("Solid","T",inline = "ln1",options = ["Solid","Dashed","Dotted"],group = g2A)
+clnType2 = input.string("Dotted","T",inline = "ln2",options = ["Solid","Dashed","Dotted"],group = g2C)
+hwidth2 = input.int(2,"W",minval=1,maxval=5,inline = "ln1" , group = g2A)
+cwidth2 = input.int(2,"W",minval=1,maxval=5,inline = "ln2" , group = g2C)
+hclr2 = input.color(color.yellow,"/",inline="ln1",tooltip = "Active Line",group = g2A)
+cclr2 = input.color(color.yellow,"/",inline="ln2",tooltip = "Crossed Line",group = g2C)
+
+g2E = "TF2 | EQ Line"
+showEq2 = input(false,"Show Eq Level",group = g2E)
+eType2 = input.string("Dashed","T",inline="eq",tooltip="EQ",options = ["Solid","Dashed","Dotted"],group = g2E)
+eWidth2 = input.int(2,"W",tooltip="EQ",inline="eq",minval=1,maxval=5,group = g2E)
+eClr2 = input.color(color.yellow,"/",tooltip="EQ",inline="eq",group = g2E)
+fractalAlert2 = input(false,"New Fractal Alert",group = g2)
+crossAlert2 = input(false,"New Cross Alert",group = g2)
+eqAlert2 = input(false,"EQ Alert",group = g2)
+patternAlert2 = input(false,"New Pattern Alert",group = g2)
+ithItlAlert2 = input(false,"ITH/ITL Alert",group = g2)
+g2P = "TF2 | Reversal Patterns"
+showPatterns2 = input(false,"Show Patterns",group = g2P)
+showitlh2 = input(false,"Show ITL/ITH",group = g2P)
+advanced2 = input(false,"Advanced Mode",group = g2P)
+g1Po2 ="TF2 | Potential Pattern"
+pType2 = input.string("Dashed","T",inline="po1",options = ["Solid","Dashed","Dotted"],group = g1Po2)
+pC2 = input.color(color.green,"/",inline = "po1",group=g1Po2)
+g1V2 ="TF2 | Valid Pattern"
+vType2 = input.string("Dotted","T",inline="v1",options = ["Solid","Dashed","Dotted"],group = g1V2)
+vC2 = input.color(color.green,"/",inline = "v1",group=g1V2)
+pBC2 = input.color(color.red,"/",inline = "po1",group=g1Po2)
+vBC2 = input.color(color.red,"/",inline = "v1",group=g1V2)
+g2ITH="TF2 | ITH"
+ithtype2 = input.string("Solid","T",tooltip="ITH Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g2ITH)
+ithwidth2 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g2ITH)
+ithclr2 = input.color(color.red,"/",inline = "zz",group = g2ITH)
+g2ITL="TF2 | ITL"
+itltype2 = input.string("Solid","T",tooltip="ITL Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g2ITL)
+itlwidth2 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g2ITL)
+itlclr2 = input.color(color.green,"/",inline = "zz",group = g2ITL)
+
+
+g3="______________________ Timeframe 3 ______________________"
+tf3 = input.timeframe("1W","Timeframe 2",inline = "tf3",group = g3)
+len3 = input.int(3,"Fractal Length",options = [3,5,7],group = g3)
+g3Z="TF3 | Zigzag Lines"
+zztype3 = input.string("Solid","T",tooltip="Zigzag Lines Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g3Z)
+zzwidth3 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g3Z)
+zzclr3 = input.color(color.orange,"/",inline = "zz",group = g3Z)
+maxZZ3 =input.int(300,"ZZ Line Count",minval=2,group = g3Z)
+
+pivotAlert3 = input(false, "Pivot Alert", group = g3)
+
+g3H="TF3 | Horizontal Lines"
+showH3 = input(true,"Show Horizontal Lines",group = g3H)
+showLast3 = input.int(40,"Line Count",group = g3H)
+g3A = "TF3 | Active Line"
+g3C = "TF3 | Crossed Line"
+
+hlnType3 = input.string("Solid","T",inline = "ln1",options = ["Solid","Dashed","Dotted"],group = g3A)
+clnType3 = input.string("Dotted","T",inline = "ln2",options = ["Solid","Dashed","Dotted"],group = g3C)
+hwidth3 = input.int(3,"W",minval=1,maxval=5,inline = "ln1" , group = g3A)
+cwidth3 = input.int(3,"W",minval=1,maxval=5,inline = "ln2" , group = g3C)
+hclr3 = input.color(color.orange,"/",inline="ln1",tooltip = "Active Line",group = g3A)
+cclr3 = input.color(color.orange,"/",inline="ln2",tooltip = "Crossed Line",group = g3C)
+
+g3E = "TF3 | EQ Line"
+showEq3 = input(false,"Show Eq Level",group = g3E)
+eType3 = input.string("Dashed","T",inline="eq",tooltip="EQ",options = ["Solid","Dashed","Dotted"],group = g3E)
+eWidth3 = input.int(2,"W",tooltip="EQ",inline="eq",minval=1,maxval=5,group = g3E)
+eClr3 = input.color(color.orange,"/",tooltip="EQ",inline="eq",group = g3E)
+fractalAlert3 = input(false,"New Fractal Alert",group = g3)
+crossAlert3 = input(false,"New Cross Alert",group = g3)
+eqAlert3 = input(false,"EQ Alert",group = g3)
+patternAlert3 = input(false,"New Pattern Alert",group = g3)
+ithItlAlert3 = input(false,"ITH/ITL Alert",group = g3)
+g3P = "TF3 | Patterns"
+showPatterns3 = input(false,"Show Patterns",group = g3P)
+showitlh3 = input(false,"Show ITL/ITH",group = g3P)
+advanced3 = input(false,"Advanced Mode",group = g3P)
+g1Po3 ="TF3 | Potential Pattern"
+pType3 = input.string("Dashed","T",inline="po1",options = ["Solid","Dashed","Dotted"],group = g1Po3)
+pC3 = input.color(color.green,"/",inline = "po1",group=g1Po3)
+g1V3 ="TF3 | Valid Pattern"
+vType3 = input.string("Dotted","T",inline="v1",options = ["Solid","Dashed","Dotted"],group = g1V3)
+vC3 = input.color(color.green,"/",inline = "v1",group=g1V3)
+pBC3 = input.color(color.red,"/",inline = "po1",group=g1Po3)
+vBC3 = input.color(color.red,"/",inline = "v1",group=g1V3)
+g3ITH="TF3 | ITH"
+ithtype3 = input.string("Solid","T",tooltip="ITH Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g3ITH)
+ithwidth3 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g3ITH)
+ithclr3 = input.color(color.red,"/",inline = "zz",group = g3ITH)
+g3ITL="TF3 | ITL"
+itltype3 = input.string("Solid","T",tooltip="ITL Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g3ITL)
+itlwidth3 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g3ITL)
+itlclr3 = input.color(color.green,"/",inline = "zz",group = g3ITL)
+
+
+g4="______________________ Timeframe 4 ______________________"
+tf4 = input.timeframe("1M","Timeframe 4",inline = "tf4",group = g4)
+len4 = input.int(3,"Fractal Length",options = [3,5,7],group = g4)
+g4Z="TF4 | Zigzag Lines"
+zztype4 = input.string("Solid","T",tooltip="Zigzag Lines Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g4Z)
+zzwidth4 = input.int(4,"W",inline = "zz",minval=1,maxval=5,group = g4Z)
+zzclr4 = input.color(color.red,"/",inline = "zz",group = g4Z)
+maxZZ4 =input.int(3600,"ZZ Line Count",minval=2,group = g4Z)
+
+pivotAlert4 = input(false, "Pivot Alert", group = g4)
+
+g4H="TF4 | Horizontal Lines"
+showH4 = input(true,"Show Horizontal Lines",group = g4H)
+showLast4 = input.int(3,"Line Count",group = g4H)
+g4A = "TF4 | Active Line"
+g4C = "TF4 | Crossed Line"
+
+hlnType4 = input.string("Solid","T",inline = "ln1",options = ["Solid","Dashed","Dotted"],group = g4A)
+clnType4 = input.string("Dotted","T",inline = "ln2",options = ["Solid","Dashed","Dotted"],group = g4C)
+hwidth4 = input.int(4,"W",minval=1,maxval=5,inline = "ln1" , group = g4A)
+cwidth4 = input.int(4,"W",minval=1,maxval=5,inline = "ln2" , group = g4C)
+hclr4 = input.color(color.red,"/",inline="ln1",tooltip = "Active Line",group = g4A)
+cclr4 = input.color(color.red,"/",inline="ln2",tooltip = "Crossed Line",group = g4C)
+
+g4E = "TF4 | EQ Line"
+showEq4 = input(false,"Show Eq Level",group = g4E)
+eType4 = input.string("Dashed","T",inline="eq",tooltip="EQ",options = ["Solid","Dashed","Dotted"],group = g4E)
+eWidth4 = input.int(1,"W",tooltip="EQ",inline="eq",minval=1,maxval=5,group = g4E)
+eClr4 = input.color(color.red,"/",tooltip="EQ",inline="eq",group = g4E)
+fractalAlert4 = input(false,"New Fractal Alert",group = g4)
+crossAlert4 = input(false,"New Cross Alert",group = g4)
+eqAlert4 = input(false,"EQ Alert",group = g4)
+patternAlert4 = input(false,"New Pattern Alert",group = g4)
+ithItlAlert4 = input(false,"ITH/ITL Alert",group = g4)
+g4P = "TF4 | Patterns"
+showPatterns4 = input(false,"Show Patterns",group = g4P)
+showitlh4 = input(false,"Show ITL/ITH",group = g4P)
+advanced4 = input(false,"Advanced Mode",group = g4P)
+g1Po4 ="TF4 | Potential Pattern"
+pType4 = input.string("Dashed","T",inline="po1",options = ["Solid","Dashed","Dotted"],group = g1Po4)
+pC4 = input.color(color.green,"/",inline = "po1",group=g1Po4)
+
+g1V4 ="TF4 | Valid Pattern"
+vType4 = input.string("Dotted","T",inline="v1",options = ["Solid","Dashed","Dotted"],group = g1V4)
+vC4 = input.color(color.green,"/",inline = "v1",group=g1V4)
+pBC4 = input.color(color.red,"/",inline = "po1",group=g1Po4)
+vBC4 = input.color(color.red,"/",inline = "v1",group=g1V4)
+
+g4ITH="TF4 | ITH"
+ithtype4 = input.string("Solid","T",tooltip="ITH Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g4ITH)
+ithwidth4 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g4ITH)
+ithclr4 = input.color(color.red,"/",inline = "zz",group = g4ITH)
+g4ITL="TF4 | ITL"
+itltype4 = input.string("Solid","T",tooltip="ITL Type/Width/Color",inline = "zz",options = ["Solid","Dashed","Dotted"],group = g4ITL)
+itlwidth4 = input.int(3,"W",inline = "zz",minval=1,maxval=5,group = g4ITL)
+itlclr4 = input.color(color.green,"/",inline = "zz",group = g4ITL)
+
+// // Nouveau groupe pour les paramètres Inside Bar
+var grpInsideBar = "Inside Bar Settings"
+showInsideBars = input.bool(true, "Afficher les Inside Bars", group=grpInsideBar)
+bullishInsideBarColor = input.color(#00f82d, "Couleur Inside Bar Haussière", group=grpInsideBar)
+bearishInsideBarColor = input.color(color.new(#f80000, 0), "Couleur Inside Bar Baissière", group=grpInsideBar)
+
+// Nouveau groupe pour les paramètres des triangles de fractal
+var grpFractal = "Fractal Triangle Settings"
+showFractalTriangles = input.bool(true, "Afficher les Triangles de Fractal", group=grpFractal)
+validateWithClose = input.bool(false, "Valider Strong Fractals avec le close", group="Fractal Settings")
+normalBullishFractalColor = input.color(#8b0000, "Normal Bullish Fractal Color")
+normalBearishFractalColor = input.color(#007604, "Normal Bearish Fractal Color")
+strongBullishFractalColor = input.color(#2dff03, "Strong Bullish Fractal Color")
+strongBearishFractalColor = input.color(#f80000, "Strong Bearish Fractal Color")
+
+//Shortcut Functions
+
+miLow(left, right) =>
+    level = low[right]
+    result = true
+    for i = 0 to left + right
+        if i == right
+            continue
+        if i < right
+            if level > low[i]
+                result := false
+                break
+        else  // i > right
+            if (level < low[i] and level <= low[i-1]) or (level <= low[i] and level < low[i-1])
+                result := false
+                break
+    result
+
+miHigh(left, right) =>
+    level = high[right]
+    result = true
+    for i = 0 to left + right
+        if i == right
+            continue
+        if i < right
+            if level < high[i]
+                result := false
+                break
+        else  // i > right
+            if (level > high[i] and level >= high[i-1]) or (level >= high[i] and level > high[i-1])
+                result := false
+                break
+    result
+
+getStyle(x)=>
+    lnStyle = switch x
+        "Dashed" => line.style_dashed
+        "Dotted" => line.style_dotted
+        "Solid" => line.style_solid
+        => line.style_solid
+    lnStyle
+
+aSz(x)=>
+    array.size(x)
+
+getTf(x) =>
+    v = str.tonumber(x)
+    result = x
+    if result==""
+        result:="Chart"    
+
+    if result=="Chart" or result=="1D" or result=="3D" or result=="1W" or result=="1M" or result=="3M" or result=="6M" or result=="12M" or result=="1S" or result=="5S" or result=="10S" or result=="15S" or result=="30S" 
+        result :=result
+    else if v<60
+        result+="m"
+    else if v>=60 
+        result:= str.tostring(v/60) + "h"  
+
+fraqtal(fLen)=>
+    len = (fLen-1)/2
+
+    pH = high[len] > high[len+1] and high[len] > high[len-1]
+    pL = low[len] < low[len+1] and low[len] < low[len-1]
+
+    var float pvtH = 0.0
+    var float pvtL = 0.0
+    var string last = "N"
+    var int lastHighIndex = 0
+    var int lastLowIndex = 0
+    trx = ""
+
+    if pH and pL
+        pvtH := high[len]
+        pvtL := low[len]
+        lastHighIndex := len
+        lastLowIndex := len
+        trx := "Both"
+        // if high[len] - low[len]  <= math.abs(close[len] - high[len])
+        //     if last == "L" or (last == "N" and low[len] > high[len+1])
+        //         pvtH := high[len]
+        //         lastHighIndex := len
+        //         last := "H"
+        //         trx := "New H"
+        //     else
+        //         pvtL := low[len]
+        //         lastLowIndex := len
+        //         last := "L"
+        //         trx := "New L"
+        
+    else if pH
+        if last == "H"
+            if high[len] > pvtH
+                pvtH := high[len]
+                if lastHighIndex > lastLowIndex and lastHighIndex - lastLowIndex > 0
+                    lowestLow = ta.lowestbars(low, lastHighIndex - lastLowIndex)
+                    if lowestLow != 0
+                        pvtL := low[lowestLow + lastLowIndex]
+                        lastLowIndex := lowestLow + lastLowIndex
+                        trx := "Update H"
+                    else
+                        trx := "Update H"
+                else
+                    trx := "Update H"
+                lastHighIndex := len
+                trx := "Update H"
+            else
+                pvtH := high[len]
+                trx := "Update H"
+            trx:="Update H"
+        else
+            pvtH := high[len]
+            lastHighIndex := len
+            last := "H"
+            trx := "New H"
+    else if pL
+        if last == "L"
+            if low[len] < pvtL
+                pvtL := low[len]
+                if lastLowIndex > lastHighIndex and lastLowIndex - lastHighIndex > 0
+                    highestHigh = ta.highestbars(high, lastLowIndex - lastHighIndex)
+                    if highestHigh != 0
+                        pvtH := high[highestHigh + lastHighIndex]
+                        lastHighIndex := highestHigh + lastHighIndex
+                        trx := "Update L"
+                    else
+                        trx := "Update L"
+                else
+                    trx := "Update L"
+                lastLowIndex := len
+                trx := "Update L"
+            else
+                pvtL := low[len]
+                trx := "Update L"
+            trx:="Update L"
+        else
+            pvtL := low[len]
+            lastLowIndex := len
+            last := "L"
+            trx := "New L"
+
+    [pvtH, pvtL, trx]
+    
+// [dH,dL,dT]=fraqtal(3)
+
+// if dT != dT[1]
+//     label.new(bar_index,low,dT)
+
+
+diff(tf)=>
+    diff = timeframe.in_seconds(tf)/timeframe.in_seconds(timeframe.period)
+    diff
+
+
+// drawH(showEq,Arr,limit,rx1,rx2,ry1,ry2,sx1,sx2,sx3,sx4)=>
+
+//     res = line.new(rx1,)
+
+drawH(show,arr,limit,x,y,lnClr,lnStyle,lnWidth)=>
+    if show
+        if aSz(arr)>=limit
+            ln = array.get(arr,0)
+            line.delete(ln)
+            array.remove(arr,0)
+        
+        ln=line.new(x,y,bar_index+10,y,color = lnClr,style = getStyle(lnStyle),width = lnWidth)
+        array.push(arr,ln)
+
+updateH(show,arr,x,y,lnClr,lnStyle,lnWidth)=>
+    if show
+        ln = array.get(arr,aSz(arr)-1)
+        line.set_xy1(ln,x,y)
+        line.set_xy2(ln,bar_index+10,y)
+        line.set_color(ln,lnClr)
+        line.set_style(ln,getStyle(lnStyle))
+        line.set_width(ln,lnWidth)
+
+lnStatus(show,arr,lnClr,lnStyle,lnWidth,al)=>
+    sz = aSz(arr)
+    
+    if sz>0 and show
+        for i= sz-1 to 0
+            ln = array.get(arr,i)
+            x = line.get_x2(ln)
+            y = line.get_y2(ln)
+            if x>bar_index+1
+                if high>=y and low<=y
+                    line.set_x2(ln,bar_index)
+                    line.set_color(ln,lnClr)
+                    line.set_style(ln,getStyle(lnStyle))
+                    line.set_width(ln,lnWidth)
+                    if al
+                        alert(syminfo.ticker + ", Crossed Line",alert.freq_once_per_bar_close)
+                else
+                    line.set_x2(ln,bar_index+10)
+        
+
+                
+itArrChange(arr,dgr,clr,width,offset)=>
+
+    line.set_style(array.get(arr,aSz(arr)-(2+offset)),getStyle(dgr))
+    line.set_style(array.get(arr,aSz(arr)-(3+offset)),getStyle(dgr))
+
+    line.set_color(array.get(arr,aSz(arr)-(2+offset)),clr)
+    line.set_color(array.get(arr,aSz(arr)-(3+offset)),clr)
+
+    line.set_width(array.get(arr,aSz(arr)-(2+offset)),width)
+    line.set_width(array.get(arr,aSz(arr)-(3+offset)),width)
+
+draw(tf, diff, len, showLast, zzColor, zzStyle, zzWidth, showH, hlnColor, hlnStyle, hlnWidth, clnColor, clnStyle, clnWidth, showEq, eqlnColor, eqlnStyle, eqlnWidth, fraqAlert, crossAlert, advanced, pType, pC, pBC, vType, vC, vBC, patternAlert, daysBack, showPatterns, showitlh, ithtype, ithclr, ithwidth, itltype, itlclr, itlwidth, ithItlAlert, eqAlert, pivotAlert) =>
+    [pvtH, pvtL, trx] = request.security(syminfo.tickerid, tf, fraqtal(len), barmerge.gaps_on, lookahead = barmerge.lookahead_on)
+    prevLow = request.security(syminfo.tickerid, tf, low[2], barmerge.gaps_on, lookahead = barmerge.lookahead_on)
+    prevClose = request.security(syminfo.tickerid, tf, close[1], barmerge.gaps_on, lookahead = barmerge.lookahead_on)
+    prevHigh = request.security(syminfo.tickerid, tf, high[2], barmerge.gaps_on, lookahead = barmerge.lookahead_on)
+    // temp = str.tostring(diff)
+    // label.new(bar_index, high[0], "diff: " + temp, color=color.new(color.white, 0), style=label.style_label_down, textcolor=color.black, size=size.normal)
+    var zzArray = array.new_line()
+    var hArray = array.new_line()
+    var eArray = array.new_line()
+    var last = "N"
+
+    currentTime = timenow
+    daysAgo = currentTime - (daysBack * 86400000)
+    currentBarTime = time
+    CBarDate = str.format("{0,date,yyyy-MM-dd}", currentBarTime)
+    currentDate = str.format("{0,date,yyyy-MM-dd}", currentTime)
+    formattedDate100DaysAgo = str.format("{0,date,yyyy-MM-dd}", daysAgo)
+
+    if currentBarTime >= daysAgo
+        lenInd = diff < 2 ? len : len - 1
+        lenH = ta.highest((lenInd) * diff) != pvtH ? lenInd - 1 : lenInd
+        lenL = ta.lowest((lenInd) * diff) != pvtL ? lenInd - 1 : lenInd
+        highs = bar_index + ta.highestbars((lenH) * diff)
+        lows = bar_index + ta.lowestbars((lenL) * diff)
+
+        newPivot = false
+        updatePivot = ""
+        var timeH = 0
+        var timeL = 0
+        
+        if pvtH != 0 and timeH == 0
+            timeH := highs
+        if pvtL != 0 and timeL == 0
+            timeL := lows
+
+        if pvtH > 0 and pvtL > 0 and aSz(zzArray) == 0
+            x1 = math.min(timeH, timeL)
+            y1 = timeH < timeL ? pvtH : pvtL
+            x2 = math.max(timeH, timeL)
+            y2 = timeH > timeL ? pvtH : pvtL
+            ln = line.new(timeH, y1, timeL, y2, xloc=xloc.bar_index, color=zzColor, style=zzStyle, width=zzWidth)
+            array.push(zzArray, ln)
+            drawH(showH, hArray, showLast, x1, y1, hlnColor, hlnStyle, hlnWidth)
+            drawH(showH, hArray, showLast, x2, y2, hlnColor, hlnStyle, hlnWidth)
+
+        // Alert logic for pivots
+        if pivotAlert
+            if (trx == "New H" or trx == "Update H") and pvtH > pvtH[1] and low[1] < prevLow and prevClose > low[1]
+                alert(syminfo.ticker + ", " + getTf(tf) + ", New Higher High with Lower Low", alert.freq_once_per_bar_close)
+            
+            if (trx == "New L" or trx == "Update L") and pvtL < pvtL[1] and high[1] > prevHigh and prevClose < high[1]
+                alert(syminfo.ticker + ", " + getTf(tf) + ", New Lower Low with Higher High", alert.freq_once_per_bar_close)
+
+        if aSz(zzArray) > 0 
+            if trx=="Both"
+                if last=="L"
+                    lastLn = array.get(zzArray,aSz(zzArray)-1)
+                    x1 = line.get_x2(lastLn)
+                    y1 = line.get_y2(lastLn)
+                    if pvtH<=y1
+                        x2 = lows
+                        y2 = pvtL
+                        line.set_xy2(lastLn,x2,y2)
+                        updateH(showH,hArray ,x2,y2,hlnColor,hlnStyle,hlnWidth)
+                        updatePivot:="L"
+                        x11 = x2
+                        y11 = y2
+                        x21 = highs
+                        y21 = pvtH
+                        ln1 = line.new(x11,y11,x21,y21,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                        
+                        array.push(zzArray,ln1)
+                        drawH(showH,hArray,showLast,x21,y21,hlnColor,hlnStyle,hlnWidth)
+                        last:="H"
+                    else
+                        x2 = highs
+                        y2 = pvtH
+                        ln = line.new(x1,y1,x2,y2,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                        array.push(zzArray,ln)
+                        newPivot:=true
+                        drawH(showH,hArray,showLast,x2,y2,hlnColor,hlnStyle,hlnWidth)
+
+
+                        x11 = x2
+                        y11 = y2
+                        x21 = lows
+                        y21 = pvtL
+                        ln1 = line.new(x11,y11,x21,y21,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                        array.push(zzArray,ln1)
+                        drawH(showH,hArray,showLast,x21,y21,hlnColor,hlnStyle,hlnWidth)
+                        // if aSz(zzArray) > 1
+                        //     // label.new(x2, y, "hello world", color=color.new(color.white, 0), style=label.style_label_down, textcolor=color.black, size=size.normal)
+                        //     lastLnLow = array.get(zzArray, aSz(zzArray) - 2)
+                        //     lastLnHigh = array.get(zzArray, aSz(zzArray) - 1)
+                        //     highestPrice = math.max(line.get_y2(lastLnLow), line.get_y2(lastLnHigh))
+                        //     lowestPrice = math.min(line.get_y1(lastLnLow), line.get_y1(lastLnHigh))
+                        //     ln1 = line.new(x11, highestPrice, x21, lowestPrice, xloc=xloc.bar_index, color=zzColor, style=zzStyle, width=zzWidth)
+                        //     array.push(zzArray, ln1)
+                        //     drawH(showH, hArray, showLast, x21, lowestPrice, hlnColor, hlnStyle, hlnWidth)
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", New High and Low Fractal",alert.freq_once_per_bar_close)
+
+
+                else if last=="H"
+                    lastLn1 = array.get(zzArray,aSz(zzArray)-1)
+                    x11 = line.get_x2(lastLn1)
+                    y11 = line.get_y2(lastLn1) // Last Line H
+                    // label.new(bar_index, y, "hello world", color=color.new(color.white, 0), style=label.style_label_down, textcolor=color.black, size=size.normal)
+                    if pvtL>=y11 // Update H draw new L
+                        line.set_xy2(lastLn1,highs,pvtH)
+                        updateH(showH,hArray,highs,pvtH,hlnColor,hlnStyle,hlnWidth)
+                        updatePivot :="H"
+                        x1 = highs 
+                        y1 = pvtH
+                        x2 = lows
+                        y2 = pvtL
+                        
+                        ln = line.new(x1,y1,x2,y2,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                        
+                        array.push(zzArray,ln)
+                        drawH(showH,hArray,showLast,x2,y2,hlnColor,hlnStyle,hlnWidth)
+                        last:="L"                  
+                    else
+                        x21 = lows
+                        y21 = pvtL
+                        ln1 = line.new(x11, y11, x21, y21, xloc.bar_index, color=zzColor, style=zzStyle, width=zzWidth)
+                        array.push(zzArray, ln1)
+                        newPivot := true
+                        drawH(showH, hArray, showLast, x21, y21, hlnColor, hlnStyle, hlnWidth)
+
+                        x1 = x21 
+                        y1 = y21
+                        x2 = highs
+                        y2 = pvtH
+                        
+                        ln = line.new(x1, y1, x2, y2, xloc.bar_index, color=zzColor, style=zzStyle, width=zzWidth)
+                        array.push(zzArray, ln)
+                        drawH(showH, hArray, showLast, x2, y2, hlnColor, hlnStyle, hlnWidth)
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", New High and Low Fractal",alert.freq_once_per_bar_close)
+
+
+            else if trx=="New H" or ( trx=="Update H" and last=="L")
+                lastLn = array.get(zzArray,aSz(zzArray)-1)
+                x1 = line.get_x2(lastLn)
+                y1 = line.get_y2(lastLn)
+                x2 = highs
+                y2 = pvtH
+                ln = line.new(x1,y1,x2,y2,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln)
+                newPivot:=true
+                drawH(showH,hArray,showLast,x2,y2,hlnColor,hlnStyle,hlnWidth)
+
+                last:="H"
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", New High Fractal",alert.freq_once_per_bar_close)
+            else if trx=="New L" or ( trx=="Update L" and last=="H")
+                lastLn = array.get(zzArray,aSz(zzArray)-1)
+                x1 = line.get_x2(lastLn)
+                y1 = line.get_y2(lastLn)
+                x2 = lows
+                y2 = pvtL
+                ln = line.new(x1,y1,x2,y2,xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln)
+                newPivot:=true
+                drawH(showH,hArray,showLast,x2,y2,hlnColor,hlnStyle,hlnWidth)
+
+                last:="L"
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", New Low Fractal",alert.freq_once_per_bar_close)
+            else if trx=="Update H"
+                lastLn = array.get(zzArray,aSz(zzArray)-1)
+                x1 = line.get_x2(lastLn)
+                y1 = line.get_y2(lastLn)
+                x2 = highs
+                y2 = pvtH
+                length = (x2 - x1)
+                var float tylow = na
+                var int posX = 2
+                delta = bar_index - x2 + 1
+
+                if bar_index >= length
+                    if length < 2 
+                        posX := 1
+                        tylow := low[1]
+                    else
+                        tylow := low[delta]  // Start with the current low
+                        for i = delta to length
+                            if tylow >= low[i]
+                                posX := i
+                                tylow := low[i]
+
+                txlow = bar_index - posX
+                // temp = str.tostring(length)
+                // label.new(x2, y2, temp, color=color.new(color.white, 0), style=label.style_label_down, textcolor=color.black, size=size.normal)
+                drawH(showH,hArray,showLast,x1,x1,hlnColor,hlnStyle,hlnWidth)
+                ln = line.new(x1,y1,txlow,tylow, xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln)
+                drawH(showH,hArray,showLast,txlow,tylow,hlnColor,hlnStyle,hlnWidth)
+                ln1 = line.new(txlow,tylow,x2,y2, xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln1)
+                drawH(showH,hArray,showLast,x2,x2,hlnColor,hlnStyle,hlnWidth)
+                updateH(showH,hArray,x2,y2,hlnColor,hlnStyle,hlnWidth)
+
+                updatePivot:="H"
+                last:="H"
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", High Fractal Updated",alert.freq_once_per_bar_close)
+            else if trx=="Update L"
+                lastLn = array.get(zzArray,aSz(zzArray)-1)
+                x1 = line.get_x2(lastLn)
+                y1 = line.get_y2(lastLn)
+                x2 = lows
+                y2 = pvtL
+                length = (x2 - x1)
+                var float tyhigh = na
+                var int posX = 2
+                delta = bar_index - x2 + 1
+                
+                if bar_index >= length
+                    if length < 2 
+                        posX := 1
+                        tyhigh := high[1]
+                    else
+                        tyhigh := high[delta]  // Start with the current low
+                        for i = delta to length
+                            if tyhigh <= high[i]
+                                tyhigh := high[i]
+                                posX := i
+                
+                txhigh = bar_index - posX
+                // temp = str.tostring(length)
+                // label.new(bar_index, y2, temp, color=color.new(color.white, 0), style=label.style_label_down, textcolor=color.black, size=size.normal)
+                // stringValue = str.tostring(tyhigh)
+                // svalue = str.tostring(length)
+                // drawH(showH,hArray,showLast,x1,x1,hlnColor,hlnStyle,hlnWidth)
+                ln = line.new(x1,y1,txhigh,tyhigh, xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln)
+                drawH(showH,hArray,showLast,txhigh,tyhigh,hlnColor,hlnStyle,hlnWidth)
+                ln1 = line.new(txhigh,tyhigh,x2,y2, xloc.bar_index,color=zzColor,style = zzStyle,width = zzWidth)
+                array.push(zzArray,ln1)
+                drawH(showH,hArray,showLast,x2,x2,hlnColor,hlnStyle,hlnWidth)
+                
+                updateH(showH,hArray,x2,y2,hlnColor,hlnStyle,hlnWidth)
+                updatePivot:="L"
+                last:="L"
+
+                if fraqAlert
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", Low Fractal Updated",alert.freq_once_per_bar_close)
+        lnStatus(showH,hArray,clnColor,clnStyle,clnWidth,crossAlert)
+        
+        var eq = line.new(na,na,na,na,color = eqlnColor,style = getStyle(eqlnStyle),width = eqlnWidth)
+        if aSz(zzArray)>0 and showEq
+            zzLn = array.get(zzArray,aSz(zzArray)-1)
+            x1 = line.get_x1(zzLn)
+            x2 = line.get_x2(zzLn)
+            y1 = line.get_y1(zzLn)
+            y2 = line.get_y2(zzLn)
+            mid = math.avg(y1,y2)
+            eqx = math.round(math.avg(x1,x2))
+            line.set_xy1(eq,eqx,mid)
+            line.set_xy2(eq,bar_index+10,mid)
+
+            if y2==y2[1] and close==y2 and eqAlert
+                alert(syminfo.ticker + ", Crossed EQ",alert.freq_once_per_bar)
+
+
+
+        debug =0.0
+        if aSz(zzArray)>=6 and (showPatterns or showitlh)
+            var bearPat = 0  // 0 / 1:=Potential / 2: Valid
+            var bearCancel = 0.0
+            var bearTrigger = 0.0
+            var bearBox = box.new(na,na,na,na,border_color = color.red,bgcolor=color.new(color.red,98))
+
+            var bullPat = 0
+            var bullCancel = 0.0
+            var bullTrigger = 0.0
+            var bullBox = box.new(na,na,na,na,border_color = color.green,bgcolor=color.new(color.green,98))
+
+            bearPat:= bearPat[1]==2 ? 0 : bearPat
+            bullPat:= bullPat[1]==2 ? 0 : bullPat
+            
+            h2=0.0
+            l2=0.0
+            h1=0.0
+            l1=0.0
+            h0=0.0
+            l0=0.0
+
+            hi2=0
+            li2=0
+            hi1=0
+            li1=0
+            hi0=0
+            li0=0
+
+            debug:=1
+            lastLn = array.get(zzArray,aSz(zzArray)-1)
+            lastY1 = line.get_y1(lastLn)
+            lastY2 = line.get_y2(lastLn)
+            if lastY2>lastY1 // Higher High
+                debug:=2
+                h2:= line.get_y2(array.get(zzArray,aSz(zzArray)-1))
+                l2:= line.get_y1(array.get(zzArray,aSz(zzArray)-1))
+                h1:= line.get_y2(array.get(zzArray,aSz(zzArray)-3))
+                l1:= line.get_y1(array.get(zzArray,aSz(zzArray)-3))
+                h0:= line.get_y2(array.get(zzArray,aSz(zzArray)-5))
+                l0:= line.get_y1(array.get(zzArray,aSz(zzArray)-5))
+                
+                hi2:= line.get_x2(array.get(zzArray,aSz(zzArray)-1))
+                li2:= line.get_x1(array.get(zzArray,aSz(zzArray)-1))
+                hi1:= line.get_x2(array.get(zzArray,aSz(zzArray)-3))
+                li1:= line.get_x1(array.get(zzArray,aSz(zzArray)-3))
+                hi0:= line.get_x2(array.get(zzArray,aSz(zzArray)-5))
+                li0:= line.get_x1(array.get(zzArray,aSz(zzArray)-5))
+                fibRule = math.abs(h2-l2)<= math.abs(h1-l2)*2.618
+                bearPattern = h2>h1 and l2>l1  and fibRule
+                if bearPattern and bearPat==0  and showPatterns
+                    if high<h2 and low>l2
+                        debug:=4
+                        bearPat:=1
+                        bearCancel:=h2
+                        bearTrigger:=l2
+                        bearBox:= box.new(hi1,l2,hi2,h2,border_color = pBC,border_style = getStyle(pType),bgcolor=color.new(pBC,98))
+                    
+                    else if (close<l2 and close[1]>=l2) or (close[1]<l2 and close[2]>=l2)
+                        bearBox:= box.new(hi1,l2,hi2,h2,border_color = vBC,border_style = getStyle(vType),bgcolor=color.new(vBC,98))
+                        if patternAlert
+                            alert(syminfo.ticker + ", " + getTf(tf) + ", New Bearish Pattern",alert.freq_once_per_bar)
+        
+
+
+            else if lastY2<lastY1
+                debug:=3
+                h2:= line.get_y1(array.get(zzArray,aSz(zzArray)-1))
+                l2:= line.get_y2(array.get(zzArray,aSz(zzArray)-1))
+                h1:= line.get_y1(array.get(zzArray,aSz(zzArray)-3))
+                l1:= line.get_y2(array.get(zzArray,aSz(zzArray)-3))
+                h0:= line.get_y1(array.get(zzArray,aSz(zzArray)-5))
+                l0:= line.get_y2(array.get(zzArray,aSz(zzArray)-5))
+
+                hi2:= line.get_x1(array.get(zzArray,aSz(zzArray)-1))
+                li2:= line.get_x2(array.get(zzArray,aSz(zzArray)-1))
+                hi1:= line.get_x1(array.get(zzArray,aSz(zzArray)-3))
+                li1:= line.get_x2(array.get(zzArray,aSz(zzArray)-3))
+                hi0:= line.get_x1(array.get(zzArray,aSz(zzArray)-5))
+                li0:= line.get_x2(array.get(zzArray,aSz(zzArray)-5))
+                fibRule = math.abs(h2-l2)<= math.abs(l1-h2)*2.618
+                bullPattern = h1>h2 and l1>l2 and fibRule
+                if bullPattern and bullPat==0 and showPatterns
+                    if high<h2 and low>l2
+                        debug:=5
+                        bullPat:=1
+                        bullCancel:= l2
+                        bullTrigger:= h2
+                        bullBox:= box.new(li1,l2,li2,h2,border_color = pC,border_style = getStyle(pType),bgcolor=color.new(pC,98))
+                    else if (close>h2 and close[1]<=h2) or (close[1]>h2 and close[2]<=h2)
+                        bullBox:= box.new(li1,l2,li2,h2,border_color = vC,border_style = getStyle(vType),bgcolor=color.new(vC,98))
+                        if patternAlert
+                            alert(syminfo.ticker + ", " + getTf(tf) + ", New Bullish Pattern",alert.freq_once_per_bar)
+
+
+            if bearPat>0 and showPatterns
+                if advanced==false and newPivot
+                    bearPat:=0
+                    box.delete(bearBox)
+                if high>bearCancel and bearPat>0
+                    bearPat:=0
+                    box.delete(bearBox)
+                else if close<bearTrigger and bearPat>0
+                    bearPat:=2
+                    box.set_border_style(bearBox,getStyle(vType))
+                    box.set_border_color(bearBox,vBC)
+                    box.set_bgcolor(bearBox,color.new(vBC,98))
+                    if patternAlert
+                        alert(syminfo.ticker + ", " + getTf(tf) + ", New Bearish Pattern",alert.freq_once_per_bar)
+
+
+
+            if bullPat>0 and showPatterns
+                if advanced==false and newPivot
+                    bullPat:=0    
+                    box.delete(bullBox)
+                
+                if low<bullCancel and bullPat>0
+                    bullPat:=0
+                    box.delete(bullBox)
+                else if close>bullTrigger and bullPat>0
+                    bullPat:=2
+                    box.set_border_style(bullBox,getStyle(vType))
+                    box.set_border_color(bullBox,vC)
+                    box.set_bgcolor(bullBox,color.new(vC,98))
+                    if patternAlert
+                        alert(syminfo.ticker + ", " + getTf(tf) + ", New Bullish Pattern",alert.freq_once_per_bar)
+
+            if showitlh
+                var ith = false
+                var itl = false
+                ithFibRule = h1-math.abs(h1-l1)*1.618<=l2 and h1-math.abs(l2-h1)*1.618<=l1
+                itlFibRule = l1+math.abs(h1-l1)*1.618>=h2 and l1+math.abs(h2-l1)*1.618>=h1
+                ithCheck = hi2>=li2 and h2<h1 and h0<h1 and ith==false //and ithFibRule
+                itlCheck = li2>=hi2 and l2>l1 and l0>l1 and itl==false //and itlFibRule
+                debug:=l0
+                offset = 0
+                if ithCheck and lastY2<lastY1
+                    offset:=1
+                if itlCheck and lastY2>lastY1
+                    offset:=1
+
+                if itlCheck
+                    itArrChange(zzArray,itltype,itlclr,itlwidth,offset)
+                    itl:=true
+                    if ithItlAlert
+                        alert(syminfo.ticker + ", " + getTf(tf) + ", New ITL Pattern",alert.freq_once_per_bar)
+                else if itl and updatePivot=="L" and l2<=l1
+                    itArrChange(zzArray,zzStyle,zzColor,zzWidth,offset)
+                    itl:=false
+                if hi2>li2
+                    itl:=false
+
+                if ithCheck
+                    itArrChange(zzArray,ithtype,ithclr,ithwidth,offset)
+                    ith:=true
+                else if ith and updatePivot=="H" and h2>=h1
+                    itArrChange(zzArray,zzStyle,zzColor,zzWidth,offset)
+                    alert(syminfo.ticker + ", " + getTf(tf) + ", New ITH Pattern",alert.freq_once_per_bar)
+                    ith:=false
+                if li2>hi2
+                    ith:=false
+
+        debug
+
+
+
+
+l =0.0
+
+if aTf1 and diff(tf1)>=1
+    last = draw(tf1,diff(tf1),len1,showLast1,zzclr1,getStyle(zztype1),zzwidth1,showH1,hclr1,hlnType1,hwidth1,cclr1,clnType1,cwidth1,showEq1,eClr1,eType1,eWidth1,fractalAlert1,crossAlert1,advanced1,pType1,pC1,pBC1,vType1,vC1,vBC1,patternAlert1,maxZZ1,showPatterns1,showitlh1,ithtype1,ithclr1,ithwidth1,itltype1,itlclr1,itlwidth1,ithItlAlert1,eqAlert1,pivotAlert1)
+    l:=last
+
+if aTf2 and diff(tf2)>=1
+    last = draw(tf2,diff(tf2),len2,showLast2,zzclr2,getStyle(zztype2),zzwidth2,showH2,hclr2,hlnType2,hwidth2,cclr2,clnType2,cwidth2,showEq2,eClr2,eType2,eWidth2,fractalAlert2,crossAlert2,advanced2,pType2,pC2,pBC2,vType2,vC2,vBC2,patternAlert2,maxZZ2,showPatterns2,showitlh2,ithtype2,ithclr2,ithwidth2,itltype2,itlclr2,itlwidth2,ithItlAlert2,eqAlert2,pivotAlert2)
+
+if aTf3 and diff(tf3)>=1
+    last = draw(tf3,diff(tf3),len3,showLast3,zzclr3,getStyle(zztype3),zzwidth3,showH3,hclr3,hlnType3,hwidth3,cclr3,clnType3,cwidth3,showEq3,eClr3,eType3,eWidth3,fractalAlert3,crossAlert3,advanced3,pType3,pC3,pBC3,vType3,vC3,vBC3,patternAlert3,maxZZ3,showPatterns3,showitlh3,ithtype3,ithclr3,ithwidth3,itltype3,itlclr3,itlwidth3,ithItlAlert3,eqAlert3,pivotAlert3)
+
+if aTf4 and diff(tf4)>=1
+    last = draw(tf4,diff(tf4),len4,showLast4,zzclr4,getStyle(zztype4),zzwidth4,showH4,hclr4,hlnType4,hwidth4,cclr4,clnType4,cwidth4,showEq4,eClr4,eType4,eWidth4,fractalAlert4,crossAlert4,advanced4,pType4,pC4,pBC4,vType4,vC4,vBC4,patternAlert4,maxZZ4,showPatterns4,showitlh4,ithtype4,ithclr4,ithwidth4,itltype4,itlclr4,itlwidth4,ithItlAlert4,eqAlert4,pivotAlert4)
+
+// Fonction de détection des inside bars
+isInside() =>
+    previousBar = 1
+    bodyStatus = (close >= open) ? 1 : -1
+    isInsidePattern = high < high[previousBar] and low > low[previousBar]
+    isInsidePattern ? bodyStatus : 0
+
+// Coloration des barres inside avec les couleurs personnalisées
+bullishBar = 1
+bearishBar = -1
+barcolor(showInsideBars and isInside() == bullishBar ? bullishInsideBarColor : na)
+barcolor(showInsideBars and isInside() == bearishBar ? bearishInsideBarColor : na)
+
+// Fonction pour détecter les fractals à 3 barres
+isFractal(direction) =>
+    if direction == 1  // Fractal haussier
+        ( high[2] > high[1] and high[2] > high[3] )
+    else  // Fractal baissier
+        ( low[2] < low[1] and low[2] < low[3] )
+
+// Fonction pour détecter si un fractal haut est plus haut que le précédent ou si un fractal bas est plus bas que le précédent
+isHigherHighLowerLow(direction) =>
+    var hiFractals = array.new_float(0)
+    var loFractals = array.new_float(0)
+    
+    if isFractal(direction)
+        if direction == 1 // Fractal haussier
+            array.push(hiFractals, high[2])
+            if array.size(hiFractals) > 1
+                array.get(hiFractals, array.size(hiFractals) - 1) > array.get(hiFractals, array.size(hiFractals) - 2) 
+        else // Fractal baissier
+            array.push(loFractals, low[2])
+            if array.size(loFractals) > 1
+                array.get(loFractals, array.size(loFractals) - 1) < array.get(loFractals, array.size(loFractals) - 2)
+    else
+        false
+
+/// Affichage des triangles de fractal
+plotshape(showFractalTriangles and isFractal(1) and not isHigherHighLowerLow(1), style=shape.triangledown, location=location.abovebar, color=normalBullishFractalColor, size=size.tiny, offset=-2)
+plotshape(showFractalTriangles and isFractal(-1) and not isHigherHighLowerLow(-1), style=shape.triangleup, location=location.belowbar, color=normalBearishFractalColor, size=size.tiny, offset=-2)
+plotshape(showFractalTriangles and isHigherHighLowerLow(1), style=shape.triangledown, location=location.abovebar, color=strongBullishFractalColor, size=size.tiny, offset=-2)
+plotshape(showFractalTriangles and isHigherHighLowerLow(-1), style=shape.triangleup, location=location.belowbar, color=strongBearishFractalColor, size=size.tiny, offset=-2)
+
+
